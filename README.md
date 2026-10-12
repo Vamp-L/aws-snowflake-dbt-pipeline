@@ -37,7 +37,7 @@ The project uses three source entities: **bookings**, **listings**, and **hosts*
 
 ## Data Transformation Layers
 
-### 1. STAGING — Snowflake source tables
+### 1. STAGING Snowflake source tables
 
 Source definitions are in [`models/sources/sources.yml`](aws_dbt_snowflake_project/models/sources/sources.yml). dbt reads the following Snowflake relations:
 
@@ -47,7 +47,7 @@ Source definitions are in [`models/sources/sources.yml`](aws_dbt_snowflake_proje
 
 In the original ingestion workflow, source files are staged in S3 and loaded to Snowflake using an external stage and `COPY INTO`. The dbt project starts from the existing Snowflake staging tables.
 
-### 2. BRONZE — Incremental source models
+### 2. BRONZE Incremental source models
 
 The three models (`bronze_bookings`, `bronze_listings`, and `bronze_hosts`) use **incremental materialization**, loading rows whose `CREATED_AT` is greater than the maximum already present in the target table.
 
@@ -67,7 +67,7 @@ FROM {{ source('staging', 'bookings') }}
 
 **Note:** This is a `CREATED_AT`-based append approach. It is not designed to capture changes to old records that retain their original `CREATED_AT` value.
 
-### 3. SILVER — Cleaning and enrichment
+### 3. SILVER Cleaning and enrichment
 
 The Silver models create standardized, enriched fields:
 
@@ -85,7 +85,7 @@ For example, `silver_bookings` calculates `TOTAL_PRICE` using the reusable `mult
 
 The `silver_*` models declare incremental materialization and business keys. They currently **do not add an `is_incremental()` source filter**, so the input query can be reprocessed on subsequent runs.
 
-### 4. GOLD — OBT and fact model
+### 4. GOLD OBT and fact model
 
 [`models/gold/obt.sql`](aws_dbt_snowflake_project/models/gold/obt.sql) uses Jinja loops to assemble a `SELECT` and a set of `LEFT JOIN`s across the three Silver tables:
 
